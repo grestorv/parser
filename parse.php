@@ -10,7 +10,9 @@
 		$re='#<a href="model\.php\?id=(.*)" class="overlay" name="model.*?" id="model.*?">#';
 		//$re='#<div data-href="(qmodel\.php\?id=.*)" class="preview"#';
 		preg_match_all($re, $html2, $m);
-		foreach ($m[1] as $key => $value) {
+		//foreach ($m[1] as $key => $value) {
+		for ($i=0; $i <5 ; $i++) { 
+			$value=$m[1][$i];
 			echo $value;
 			parseModel($value);
 			echo '<br>';
