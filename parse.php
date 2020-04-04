@@ -2,8 +2,9 @@
 	error_reporting(E_ALL);
 	ini_set('display_errors', 'on');
 	include "parse_model.php";
+	set_time_limit(10000);
 
-	$numberOfPages=1;
+	$numberOfPages=17;
 	for($i=1;$i<=$numberOfPages;$i++){
 		$url="https://monro24.by/catalog.php?p=$i";
 		$html2=file_get_contents($url);

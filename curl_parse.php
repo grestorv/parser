@@ -75,7 +75,7 @@ while ($thread && ($thread_exec == CURLM_OK)) {
 
 				// скачиваем содержимое страницы
 				$job[$page] = curl_multi_getcontent($init);
-				echo strip_tags($job[$page]).'<br><br><br><br><br><br><br><br><br><br>';
+				//echo strip_tags($job[$page]).'<br><br><br><br><br><br><br><br><br><br>';
 				// удаляем поток из мультикурла
 				curl_multi_remove_handle($multi_init, $init);
 
