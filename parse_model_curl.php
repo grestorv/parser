@@ -30,11 +30,12 @@
 		return $photos;
 	}
 
-	function parseModel($html,$id){
+	function parseModel($html,$id, $db_inserts){
 
-		include "db_init.php";
 		echo '<br>2222222222222<br>';
-		$model=parseQuery('#<span class="model-SKU"><b>Артикул:</b> (.*)</span>#', $html);
+		$model=parseQuery('#<span class="model-SKU"><b>Артикул:</b> (.*?)(\s.*?)?</span>#u', $html);
+		$color='';
+		$color=parseQuery('#<span class="model-SKU"><b>Артикул:</b> .*?(\s.*?)?</span>#u', $html);
 		$price=parseQuery('#<div class="current-cost"><span class="number">(.*?)</span>#su', $html);
 
 		$re='#<div class="input-select-block select-size">(.*?)</div>#su';
@@ -43,11 +44,11 @@
 		$re='#<a href class="input-select-item(?: active)?" data-input-value=".*?" data-input-name="size">(.*?)</a>#su';
 		preg_match_all($re, $tempHtml, $m);
 		$sizes=$m[1];
-		$sizes=implode(',', $sizes).'<br>';
-		echo $sizes;
+		$sizes=implode(',', $sizes);
+		echo $sizes.'<br>';
 
 		$kit=parseQuery('#<div><b>Комплектация:</b>\s*(.*?)</div>#su', $html);
-		$color='';
+
 		$brand=parseQuery('#<div><b>Бренд:</b>\s*(.*?)</div>#su', $html);
 		$height=parseQuery('#<div><b>Рост:</b>\s*(.*?)</div>#su', $html);
 		if(!isset($height)) {
@@ -59,7 +60,7 @@
 		$photos=implode(',', $photos);
 		//echo $photos;
 
-		$query = "INSERT INTO data SET id=$id, brand='$brand', model='$model', size='$sizes', season='$season', kit='$kit', material='$material', color='$color', height='$height', photos='$photos', price=$price";
-		$result=mysqli_query($link,$query) or die(mysqli_error($link));
+		//return "INSERT INTO data SET id=$id, brand='$brand', model='$model', size='$sizes', season='$season', kit='$kit', material='$material', color='$color', height='$height', photos='$photos', price=$price";
+		return "($id, '$brand', '$model', '$sizes', '$season', '$kit', '$material', '$color', '$height', '$photos', $price),";
 	}
 ?>

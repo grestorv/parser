@@ -1,23 +1,17 @@
 <?php
-
+	include "db_init.php";
 	include "parse_model_curl.php";
 
+	$db_inserts=[];
 	$ch[]=[];
 	$mh=curl_multi_init();
-	$numberOfPages=17;
+	$numberOfPages=1;
 	$listOfUrls=array();
 	for($i=1;$i<=$numberOfPages;$i++){
 		$listOfUrls[]="https://monro24.by/catalog.php?p=$i";
 	}
-	/*for($i=0;$i<$numberOfPages;$i++){
-		$ch[$i]=curl_init();
-		curl_setopt($ch[$i], CURLOPT_URL, "https://monro24.by/catalog.php?p=$i");
-		curl_setopt($ch[$i], CURLOPT_HEADER, 0);
-		curl_setopt($ch[$i], CURLOPT_RETURNTRANSFER, 1);
-		//curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT, 30);
-		curl_multi_add_handle($mh, $ch[$i]);
-	}*/
-	for($i=0; $i<5; $i++){
+
+	for($i=0; $i<2; $i++){
 		add_url_to_multi_handle2($mh, $listOfUrls);
 	}
 
@@ -36,7 +30,8 @@
 					preg_match_all($re, $html, $m);
 					$url_list=$m[1];
 					echo '1111111111111';
-					downloadPage($m[1]);
+					$a=downloadPage($m[1]);
+					$db_inserts= array_merge($db_inserts,$a);
 					add_url_to_multi_handle($mh, 0);
 					curl_multi_remove_handle($mh, $ch);
 					curl_close($ch);
@@ -48,11 +43,23 @@
 		
 		usleep(100);
 	}
+	curl_multi_close($mh);
+	var_dump($db_inserts);
+
+
+	$db_inserts=array_unique($db_inserts);
+	$db_inserts=array_diff($db_inserts, array(''));
+	$query="INSERT INTO data(id, brand, model, size, season, kit, material, color, height, photos, price) VALUES ";
+	for($i=0;$i<1000;$i++){
+		$query.=$db_inserts[$i];
+	}
+	$query=preg_replace('#,$#', '', $query);
+	$result=mysqli_query($link,$query) or die(mysqli_error($link));
 	//Необходимое условие
 	echo 'Done';
 	function downloadPage($m){
 
-
+		$db_inserts=[];
 		$max_connection=8;
 		$ch=array();
 		$mh=curl_multi_init();
@@ -83,7 +90,7 @@
 							//echo $url.'<br>';
 							$id=curl_getinfo($info['handle'], CURLINFO_EFFECTIVE_URL);//https://monro24.by/model.php?id=12274759569
 							$id=preg_replace('#https://monro24\.by/qmodel\.php\?id=#','', $id);
-							parseModel($html, $id);
+							$db_inserts[]= parseModel($html, $id, $db_inserts);
 						}
 						else {
 							$listOfUrls[]=$url;
@@ -99,8 +106,9 @@
 			usleep(100);
 		}
 		curl_multi_close($mh);
+		return $db_inserts;
 	}
-	curl_multi_close($mh);
+
 function add_url_to_multi_handle($mh, $url_list) {
 	static $index = 0;
  	if($url_list!=0){
@@ -114,7 +122,7 @@ function add_url_to_multi_handle($mh, $url_list) {
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 	 
 			// добавляем к мульти-дескриптору
 			curl_multi_add_handle($mh, $ch);
