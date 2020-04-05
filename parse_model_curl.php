@@ -12,7 +12,6 @@
 	function parseQuery($regQuery, $html){
 		preg_match_all($regQuery, $html, $m);
 		$m=$m[1][0];
-		echo $m.'<br>';
 		return $m;
 	}
 	function parseImages($html){
@@ -20,19 +19,17 @@
 		preg_match_all($re, $html, $m);
 		$photos=[];
 		foreach ($m[1] as $key => $value) {
-			//$re='#<a href="(.*?)"#';data-big-image
 			$re='#<a .*? data-big-image="(.*?)"#';
 			preg_match_all($re, $value, $m);
-			echo $m[1][0];
+
 			$photos[]=$m[1][0];
-			echo '<br>';
+
 		}
 		return $photos;
 	}
 
 	function parseModel($html,$id, $db_inserts){
 
-		echo '<br>2222222222222<br>';
 		$model=parseQuery('#<span class="model-SKU"><b>Артикул:</b> (.*?)(\s.*?)?</span>#u', $html);
 		$color='';
 		$color=parseQuery('#<span class="model-SKU"><b>Артикул:</b> .*?(\s.*?)?</span>#u', $html);
@@ -45,22 +42,19 @@
 		preg_match_all($re, $tempHtml, $m);
 		$sizes=$m[1];
 		$sizes=implode(',', $sizes);
-		echo $sizes.'<br>';
 
 		$kit=parseQuery('#<div><b>Комплектация:</b>\s*(.*?)</div>#su', $html);
 
 		$brand=parseQuery('#<div><b>Бренд:</b>\s*(.*?)</div>#su', $html);
 		$height=parseQuery('#<div><b>Рост:</b>\s*(.*?)</div>#su', $html);
 		if(!isset($height)) {
-			$height=0; echo $height;
+			$height=0;
 		}
 		$material=parseQuery('#<div><b>Состав:</b>\s*(.*?)</div>#su', $html);
 		$season=parseQuery('#<div><b>Сезон:</b>\s*(.*?)</div>#su', $html);
 		$photos=parseImages($html);
 		$photos=implode(',', $photos);
-		//echo $photos;
 
-		//return "INSERT INTO data SET id=$id, brand='$brand', model='$model', size='$sizes', season='$season', kit='$kit', material='$material', color='$color', height='$height', photos='$photos', price=$price";
 		return "($id, '$brand', '$model', '$sizes', '$season', '$kit', '$material', '$color', '$height', '$photos', $price),";
 	}
 ?>
