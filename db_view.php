@@ -9,4 +9,6 @@
 		var_dump($value);
 		echo '<br>';
 	}
+	$query = "TRUNCATE data";
+	mysqli_query($link,$query) or die(mysqli_error($link));
 ?>
